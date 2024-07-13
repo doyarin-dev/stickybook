@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/stickybook/static/css/main.f855e6bc.css",
+    "main.js": "/stickybook/static/js/main.0efaca40.js",
+    "static/js/453.6c457c66.chunk.js": "/stickybook/static/js/453.6c457c66.chunk.js",
+    "static/media/logo.svg": "/stickybook/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "index.html": "/stickybook/index.html",
+    "main.f855e6bc.css.map": "/stickybook/static/css/main.f855e6bc.css.map",
+    "main.0efaca40.js.map": "/stickybook/static/js/main.0efaca40.js.map",
+    "453.6c457c66.chunk.js.map": "/stickybook/static/js/453.6c457c66.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.0efaca40.js"
+  ]
+}
