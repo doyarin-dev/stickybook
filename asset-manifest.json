@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/stickybook/static/css/main.f855e6bc.css",
-    "main.js": "/stickybook/static/js/main.3e763e60.js",
+    "main.js": "/stickybook/static/js/main.76af53f5.js",
     "static/js/453.174d3ac6.chunk.js": "/stickybook/static/js/453.174d3ac6.chunk.js",
     "index.html": "/stickybook/index.html",
     "main.f855e6bc.css.map": "/stickybook/static/css/main.f855e6bc.css.map",
-    "main.3e763e60.js.map": "/stickybook/static/js/main.3e763e60.js.map",
+    "main.76af53f5.js.map": "/stickybook/static/js/main.76af53f5.js.map",
     "453.174d3ac6.chunk.js.map": "/stickybook/static/js/453.174d3ac6.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f855e6bc.css",
-    "static/js/main.3e763e60.js"
+    "static/js/main.76af53f5.js"
   ]
 }
