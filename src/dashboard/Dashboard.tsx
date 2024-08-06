@@ -24,6 +24,7 @@ import { mainListItems, secondaryListItems } from './listItems';
 import Deposits from './Deposits';
 import Orders from './Orders';
 import { AddCard } from '@mui/icons-material';
+import Card from './Card';
 
 const drawerWidth: number = 240;
 
@@ -81,17 +82,30 @@ const defaultTheme = createTheme();
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
   const [components, setComponents] = React.useState<JSX.Element[]>([]); // 追加するコンポーネントを保持する配列
+  const [loading, setLoading] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
+  // React.useEffect(() => {
+  //   if (!loading) {
+  //     return;
+  //   }
+  //   const localStorageKeyName = 'card';
+  //   const cardValue = JSON.parse(localStorage.getItem(localStorageKeyName) || 'null');
+  //   if (Array.isArray(cardValue)){
+  //     for(let i = 0; i < cardValue.length; i++){
+  //       const newComponent = <Card cardNumber={i}/>;
+  //       setComponents([...components, newComponent]);
+  //       console.log(components)
+  //     }
+  //   }
+  //   setLoading(false);
+  // }, []);
+
   const addCard = () => {
-    const newComponent = <Grid item xs={3}><TextField
-      id="outlined-multiline-static"
-      multiline
-      rows={4}
-      defaultValue=""
-    /></Grid>;
+    const numExistCards = components.length;
+    const newComponent = <Card cardNumber={numExistCards}/>;
     setComponents([...components, newComponent]);
   }
 
