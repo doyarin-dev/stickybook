@@ -79,9 +79,40 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
+class Card {
+  private _text: string
+  constructor(text: string) {
+    this._text = text
+  }
+  get text() {
+    return this.text
+  }
+  set text(text: string) {
+    this._text = text
+  }
+}
+
+class Cards {
+  private _cards: Card[]
+  constructor() {
+    this._cards = []
+  }
+  getCard(cardNumber: number){
+    return this._cards[cardNumber]
+  }
+  addCard(){
+    this._cards.push(new Card(""))
+  }
+  updateCard(cardNumber: number, text: string){
+    this._cards[cardNumber].text = text
+  }
+  removeCard(cardNumber: number){
+    this._cards.splice(cardNumber)
+}
+
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
-  const [components, setComponents] = React.useState<JSX.Element[]>([]); // 追加するコンポーネントを保持する配列
+  const [components, setComponents] = React.useState<Cards>({}); // 追加するコンポーネントを保持する配列
   const [loading, setLoading] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -104,9 +135,10 @@ export default function Dashboard() {
   // }, []);
 
   const addCard = () => {
-    const numExistCards = components.length;
-    const newComponent = <Card cardNumber={numExistCards}/>;
-    setComponents([...components, newComponent]);
+    const newComponent = components;
+    const data = {text: ""};
+    newComponent[0] = data;
+    setComponents(newComponent);
   }
 
   return (
@@ -185,7 +217,7 @@ export default function Dashboard() {
               <AddCircleIcon fontSize="inherit" />
             </IconButton>
             <Grid container spacing={2}>
-              {components}
+              {/* {components} */}
             </Grid>
           </Container>
         </Box>

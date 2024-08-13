@@ -27,6 +27,11 @@ const setCardText = (num: number, text: string) => {
     }
     localStorage.setItem(localStorageKeyName, JSON.stringify(cardValue));
 }
+const addCard = () => {
+const numExistCards = components.length;
+const newComponent = <Card cardNumber={numExistCards}/>;
+setComponents([...components, newComponent]);
+}
 
 export default function Card({cardNumber}: {cardNumber: number}) {
     const [text, setText] = React.useState<string>(getCardText(cardNumber) || '');
