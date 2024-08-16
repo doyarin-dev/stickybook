@@ -24,7 +24,7 @@ import { mainListItems, secondaryListItems } from './listItems';
 import Deposits from './Deposits';
 import Orders from './Orders';
 import { AddCard } from '@mui/icons-material';
-import Card from './Card';
+// import Card from './Card';
 
 const drawerWidth: number = 240;
 
@@ -100,6 +100,12 @@ class Cards {
   getCard(cardNumber: number){
     return this._cards[cardNumber]
   }
+  getCardNumber(){
+    return this._cards.length;
+  }
+  map(){
+    return this._cards
+  }
   addCard(){
     this._cards.push(new Card(""))
   }
@@ -108,37 +114,22 @@ class Cards {
   }
   removeCard(cardNumber: number){
     this._cards.splice(cardNumber)
+  }
 }
+const newCard = new Cards;
 
 export default function Dashboard() {
+  const [displayCardNumber, setDisplayCardNumber] = React.useState<number>(0);
+  // const displayCardNumber:number = newCard.getCardNumber();
   const [open, setOpen] = React.useState(true);
-  const [components, setComponents] = React.useState<Cards>({}); // 追加するコンポーネントを保持する配列
-  const [loading, setLoading] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
-
-  // React.useEffect(() => {
-  //   if (!loading) {
-  //     return;
-  //   }
-  //   const localStorageKeyName = 'card';
-  //   const cardValue = JSON.parse(localStorage.getItem(localStorageKeyName) || 'null');
-  //   if (Array.isArray(cardValue)){
-  //     for(let i = 0; i < cardValue.length; i++){
-  //       const newComponent = <Card cardNumber={i}/>;
-  //       setComponents([...components, newComponent]);
-  //       console.log(components)
-  //     }
-  //   }
-  //   setLoading(false);
-  // }, []);
-
-  const addCard = () => {
-    const newComponent = components;
-    const data = {text: ""};
-    newComponent[0] = data;
-    setComponents(newComponent);
+  const addNewCard = () => {
+    newCard.addCard();
+    console.log(newCard.getCardNumber())
+    const newCardNumber = newCard.getCardNumber();
+    setDisplayCardNumber(newCardNumber);
   }
 
   return (
@@ -213,11 +204,11 @@ export default function Dashboard() {
         >
           <Toolbar />
           <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
-            <IconButton aria-label="delete" size="large" onClick={addCard}>
+            <IconButton aria-label="delete" size="large" onClick={addNewCard}>
               <AddCircleIcon fontSize="inherit" />
             </IconButton>
             <Grid container spacing={2}>
-              {/* {components} */}
+              {displayCardNumber}
             </Grid>
           </Container>
         </Box>
