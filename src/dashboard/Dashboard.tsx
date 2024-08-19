@@ -85,7 +85,7 @@ class Card {
     this._text = text
   }
   get text() {
-    return this.text
+    return this._text
   }
   set text(text: string) {
     this._text = text
@@ -94,8 +94,8 @@ class Card {
 
 class Cards {
   private _cards: Card[]
-  constructor() {
-    this._cards = []
+  constructor(cards: Card[]) {
+    this._cards = cards
   }
   getCard(cardNumber: number){
     return this._cards[cardNumber]
@@ -103,33 +103,32 @@ class Cards {
   getCardNumber(){
     return this._cards.length;
   }
-  map(){
+  get cards(){
     return this._cards
   }
-  addCard(){
-    this._cards.push(new Card(""))
+  addCard(cardText: string){
+    return new Cards(this._cards.concat(new Card(cardText)))
   }
   updateCard(cardNumber: number, text: string){
-    this._cards[cardNumber].text = text
+    return new Cards(this._cards.map((card, index) => {
+      return index === cardNumber ? new Card(text) : card
+    }))
   }
   removeCard(cardNumber: number){
     this._cards.splice(cardNumber)
   }
 }
-const newCard = new Cards;
+// const newCard = new Cards;
 
 export default function Dashboard() {
-  const [displayCardNumber, setDisplayCardNumber] = React.useState<number>(0);
+  const [displayCards, setDisplayCards] = React.useState<Cards>(new Cards([]));
   // const displayCardNumber:number = newCard.getCardNumber();
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
   const addNewCard = () => {
-    newCard.addCard();
-    console.log(newCard.getCardNumber())
-    const newCardNumber = newCard.getCardNumber();
-    setDisplayCardNumber(newCardNumber);
+    setDisplayCards(displayCards.addCard(''))
   }
 
   return (
@@ -208,7 +207,22 @@ export default function Dashboard() {
               <AddCircleIcon fontSize="inherit" />
             </IconButton>
             <Grid container spacing={2}>
-              {displayCardNumber}
+              {
+                displayCards.cards.map((card,index) => {
+                  return <Grid item xs={3}>
+                  <TextField
+                    id="hoge"
+                    multiline
+                    rows={4}
+                    defaultValue=""
+                    value={card.text}
+                    onChange={(event) => {
+                      const inputText = event.target.value
+                      setDisplayCards(displayCards.updateCard(index, inputText))
+                    }}
+                  /></Grid>
+                })
+              }
             </Grid>
           </Container>
         </Box>
