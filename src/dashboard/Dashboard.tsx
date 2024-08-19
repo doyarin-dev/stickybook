@@ -24,7 +24,7 @@ import { mainListItems, secondaryListItems } from './listItems';
 import Deposits from './Deposits';
 import Orders from './Orders';
 import { AddCard } from '@mui/icons-material';
-import Card from './Card';
+// import Card from './Card';
 
 const drawerWidth: number = 240;
 
@@ -85,7 +85,7 @@ class Card {
     this._text = text
   }
   get text() {
-    return this.text
+    return this._text
   }
   set text(text: string) {
     this._text = text
@@ -94,51 +94,41 @@ class Card {
 
 class Cards {
   private _cards: Card[]
-  constructor() {
-    this._cards = []
+  constructor(cards: Card[]) {
+    this._cards = cards
   }
   getCard(cardNumber: number){
     return this._cards[cardNumber]
   }
-  addCard(){
-    this._cards.push(new Card(""))
+  getCardNumber(){
+    return this._cards.length;
+  }
+  get cards(){
+    return this._cards
+  }
+  addCard(cardText: string){
+    return new Cards(this._cards.concat(new Card(cardText)))
   }
   updateCard(cardNumber: number, text: string){
-    this._cards[cardNumber].text = text
+    return new Cards(this._cards.map((card, index) => {
+      return index === cardNumber ? new Card(text) : card
+    }))
   }
   removeCard(cardNumber: number){
     this._cards.splice(cardNumber)
+  }
 }
+// const newCard = new Cards;
 
 export default function Dashboard() {
+  const [displayCards, setDisplayCards] = React.useState<Cards>(new Cards([]));
+  // const displayCardNumber:number = newCard.getCardNumber();
   const [open, setOpen] = React.useState(true);
-  const [components, setComponents] = React.useState<Cards>({}); // 追加するコンポーネントを保持する配列
-  const [loading, setLoading] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
-
-  // React.useEffect(() => {
-  //   if (!loading) {
-  //     return;
-  //   }
-  //   const localStorageKeyName = 'card';
-  //   const cardValue = JSON.parse(localStorage.getItem(localStorageKeyName) || 'null');
-  //   if (Array.isArray(cardValue)){
-  //     for(let i = 0; i < cardValue.length; i++){
-  //       const newComponent = <Card cardNumber={i}/>;
-  //       setComponents([...components, newComponent]);
-  //       console.log(components)
-  //     }
-  //   }
-  //   setLoading(false);
-  // }, []);
-
-  const addCard = () => {
-    const newComponent = components;
-    const data = {text: ""};
-    newComponent[0] = data;
-    setComponents(newComponent);
+  const addNewCard = () => {
+    setDisplayCards(displayCards.addCard(''))
   }
 
   return (
@@ -213,11 +203,26 @@ export default function Dashboard() {
         >
           <Toolbar />
           <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
-            <IconButton aria-label="delete" size="large" onClick={addCard}>
+            <IconButton aria-label="delete" size="large" onClick={addNewCard}>
               <AddCircleIcon fontSize="inherit" />
             </IconButton>
             <Grid container spacing={2}>
-              {/* {components} */}
+              {
+                displayCards.cards.map((card,index) => {
+                  return <Grid item xs={3}>
+                  <TextField
+                    id="hoge"
+                    multiline
+                    rows={4}
+                    defaultValue=""
+                    value={card.text}
+                    onChange={(event) => {
+                      const inputText = event.target.value
+                      setDisplayCards(displayCards.updateCard(index, inputText))
+                    }}
+                  /></Grid>
+                })
+              }
             </Grid>
           </Container>
         </Box>
