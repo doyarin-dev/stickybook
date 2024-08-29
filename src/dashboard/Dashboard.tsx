@@ -118,10 +118,24 @@ class Cards {
     this._cards.splice(cardNumber)
   }
 }
-// const newCard = new Cards;
 
 export default function Dashboard() {
-  const [displayCards, setDisplayCards] = React.useState<Cards>(new Cards([]));
+  const localStorageKeyName = 'card';
+
+  const setCardsToLocalStorage = (Cards: Cards, localStorageKeyName: string) => {
+    let textList = Cards.cards.map(card => card.text)
+    localStorage.setItem(localStorageKeyName, JSON.stringify(textList));
+  }
+
+  const getCardsFromLocalStorage = (localStorageKeyName: string) => {
+    let textList = JSON.parse(localStorage.getItem(localStorageKeyName) || 'null')
+    if (Array.isArray(textList)){
+      return new Cards(textList.map(text => new Card(text)))
+    }
+    return new Cards([])
+  }
+
+  const [displayCards, setDisplayCards] = React.useState<Cards>(getCardsFromLocalStorage(localStorageKeyName));
   // const displayCardNumber:number = newCard.getCardNumber();
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
@@ -129,7 +143,7 @@ export default function Dashboard() {
   };
   const addNewCard = () => {
     setDisplayCards(displayCards.addCard(''))
-  }
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -212,14 +226,17 @@ export default function Dashboard() {
                   return <Grid item xs={3}>
                   <TextField
                     id="hoge"
+                    variant="filled"
                     multiline
                     rows={4}
-                    defaultValue=""
                     value={card.text}
                     onChange={(event) => {
                       const inputText = event.target.value
-                      setDisplayCards(displayCards.updateCard(index, inputText))
+                      const newCards = displayCards.updateCard(index, inputText)
+                      setCardsToLocalStorage(newCards, localStorageKeyName)
+                      setDisplayCards(newCards)
                     }}
+                    fullWidth={true}
                   /></Grid>
                 })
               }
