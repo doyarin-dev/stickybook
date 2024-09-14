@@ -24,7 +24,9 @@ import { mainListItems, secondaryListItems } from './listItems';
 import Deposits from './Deposits';
 import Orders from './Orders';
 import { AddCard } from '@mui/icons-material';
-// import Card from './Card';
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import { arrayMove, SortableContext } from "@dnd-kit/sortable";
+import Cards from './Card';
 
 const drawerWidth: number = 240;
 
@@ -79,70 +81,17 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-class Card {
-  private _text: string
-  constructor(text: string) {
-    this._text = text
-  }
-  get text() {
-    return this._text
-  }
-  set text(text: string) {
-    this._text = text
-  }
-}
-
-class Cards {
-  private _cards: Card[]
-  constructor(cards: Card[]) {
-    this._cards = cards
-  }
-  getCard(cardNumber: number){
-    return this._cards[cardNumber]
-  }
-  getCardNumber(){
-    return this._cards.length;
-  }
-  get cards(){
-    return this._cards
-  }
-  addCard(cardText: string){
-    return new Cards(this._cards.concat(new Card(cardText)))
-  }
-  updateCard(cardNumber: number, text: string){
-    return new Cards(this._cards.map((card, index) => {
-      return index === cardNumber ? new Card(text) : card
-    }))
-  }
-  removeCard(cardNumber: number){
-    this._cards.splice(cardNumber)
-  }
-}
-
 export default function Dashboard() {
   const localStorageKeyName = 'card';
 
-  const setCardsToLocalStorage = (Cards: Cards, localStorageKeyName: string) => {
-    let textList = Cards.cards.map(card => card.text)
-    localStorage.setItem(localStorageKeyName, JSON.stringify(textList));
-  }
-
-  const getCardsFromLocalStorage = (localStorageKeyName: string) => {
-    let textList = JSON.parse(localStorage.getItem(localStorageKeyName) || 'null')
-    if (Array.isArray(textList)){
-      return new Cards(textList.map(text => new Card(text)))
-    }
-    return new Cards([])
-  }
-
-  const [displayCards, setDisplayCards] = React.useState<Cards>(getCardsFromLocalStorage(localStorageKeyName));
+  const [displayCards, setDisplayCards] = React.useState<string[]>([]);
   // const displayCardNumber:number = newCard.getCardNumber();
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
   const addNewCard = () => {
-    setDisplayCards(displayCards.addCard(''))
+    setDisplayCards([...displayCards, Math.random().toString(32).substring(2)])
   };
 
   return (
@@ -220,27 +169,29 @@ export default function Dashboard() {
             <IconButton aria-label="delete" size="large" onClick={addNewCard}>
               <AddCircleIcon fontSize="inherit" />
             </IconButton>
-            <Grid container spacing={2}>
-              {
-                displayCards.cards.map((card,index) => {
-                  return <Grid item xs={3}>
-                  <TextField
-                    id="hoge"
-                    variant="filled"
-                    multiline
-                    rows={4}
-                    value={card.text}
-                    onChange={(event) => {
-                      const inputText = event.target.value
-                      const newCards = displayCards.updateCard(index, inputText)
-                      setCardsToLocalStorage(newCards, localStorageKeyName)
-                      setDisplayCards(newCards)
-                    }}
-                    fullWidth={true}
-                  /></Grid>
-                })
-              }
-            </Grid>
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={(event) => {
+                const {active, over} = event;
+                if (over == null || active.id === over.id) {
+                  return
+                }
+                const oldIndex = displayCards.findIndex((item) => item === active.id)
+                const newIndex = displayCards.findIndex((item) => item === over.id)
+                const newItems = arrayMove(displayCards, oldIndex, newIndex)
+                setDisplayCards(newItems)
+              }}
+            >
+              <Grid container spacing={2}>
+                <SortableContext items={displayCards}>  
+                  {
+                    displayCards.map((cardText) => {
+                      return <Cards text={cardText}/>
+                    })
+                  }
+                </SortableContext>
+              </Grid>
+            </DndContext>
           </Container>
         </Box>
       </Box>
