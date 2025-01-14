@@ -3,49 +3,63 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import PeopleIcon from '@mui/icons-material/People';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import LayersIcon from '@mui/icons-material/Layers';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import ShelfIcon from '@mui/icons-material/Style';
+import { DndContext, closestCenter ,DragOverlay} from "@dnd-kit/core";
+import { arrayMove, SortableContext } from "@dnd-kit/sortable";
+import Grid from '@mui/material/Grid';
+import Cards from './Card';
 
-export const mainListItems = (
+
+// export const mainListItems = (
+export function MainListItems(){
+  const [displayCards, setDisplayCards] = React.useState<string[]>([]);
+  const [activeId, setActiveId] = React.useState(null);
+  return (
   <React.Fragment>
     <ListItemButton>
       <ListItemIcon>
-        <DashboardIcon />
+        <ShelfIcon />
       </ListItemIcon>
-      <ListItemText primary="Dashboard" />
+      <ListItemText primary="Shelf1" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
-        <ShoppingCartIcon />
+        <ShelfIcon />
       </ListItemIcon>
-      <ListItemText primary="Orders" />
+      <ListItemText primary="Shelf2" />
     </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <PeopleIcon />
-      </ListItemIcon>
-      <ListItemText primary="Customers" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <BarChartIcon />
-      </ListItemIcon>
-      <ListItemText primary="Reports" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <LayersIcon />
-      </ListItemIcon>
-      <ListItemText primary="Integrations" />
-    </ListItemButton>
+    <DndContext
+      collisionDetection={closestCenter}
+      onDragEnd={(event) => {
+        const {active, over} = event;
+        if (over == null || active.id === over.id) {
+          return
+        }
+        const oldIndex = displayCards.findIndex((item) => item === active.id)
+        const newIndex = displayCards.findIndex((item) => item === over.id)
+        const newItems = arrayMove(displayCards, oldIndex, newIndex)
+        setDisplayCards(newItems)
+      }}
+    >
+      <Grid container spacing={2}>
+        <SortableContext items={displayCards}>  
+          {
+            displayCards.map((cardText) => {
+              return <Cards text={cardText}/>
+            })
+          }
+        </SortableContext>
+        <DragOverlay>
+          {activeId ? <Cards text="1" /> : null}
+        </DragOverlay>
+      </Grid>
+    </DndContext>
   </React.Fragment>
-);
+  )
+};
 
-export const secondaryListItems = (
+export const SecondaryListItems = (
   <React.Fragment>
     <ListSubheader component="div" inset>
       Saved reports
@@ -55,12 +69,6 @@ export const secondaryListItems = (
         <AssignmentIcon />
       </ListItemIcon>
       <ListItemText primary="Current month" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Last quarter" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
