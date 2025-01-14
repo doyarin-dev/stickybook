@@ -20,13 +20,12 @@ import MenuIcon from '@mui/icons-material/Menu';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { mainListItems, secondaryListItems } from './listItems';
-import Deposits from './Deposits';
-import Orders from './Orders';
+import { MainListItems, SecondaryListItems } from './listItems';
 import { AddCard } from '@mui/icons-material';
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import Cards from './Card';
+import { Droppable } from './Shelf ';
 
 const drawerWidth: number = 240;
 
@@ -83,117 +82,155 @@ const defaultTheme = createTheme();
 
 export default function Dashboard() {
   const localStorageKeyName = 'card';
+  const setCardsToLocalStorage = (Cards: string[], localStorageKeyName: string) => {
+    localStorage.setItem(localStorageKeyName, JSON.stringify(Cards));
+  }
+  const getCardsFromLocalStorage = (localStorageKeyName: string) => {
+    let textList = JSON.parse(localStorage.getItem(localStorageKeyName) || 'null')
+    if (Array.isArray(textList)){
+      return  textList
+      // new Cards(textList.map(text => new Card(text)))
+    }
+    return []
+  }
 
-  const [displayCards, setDisplayCards] = React.useState<string[]>([]);
+  // const [displayCards, setDisplayCards] = React.useState<string[]>([]);
+  const [displayCards, setDisplayCards] = React.useState<string[]>(getCardsFromLocalStorage(localStorageKeyName));
+
   // const displayCardNumber:number = newCard.getCardNumber();
   const [open, setOpen] = React.useState(true);
+  const [activeId, setActiveId] = React.useState(null);
+  const [dropCount, setDropCount] = React.useState(0);
   const toggleDrawer = () => {
     setOpen(!open);
   };
   const addNewCard = () => {
-    setDisplayCards([...displayCards, Math.random().toString(32).substring(2)])
+    const randomnum=Math.random().toString(32).substring(2)
+    setDisplayCards([...displayCards, randomnum])
+    console.log(displayCards)
+    setCardsToLocalStorage([...displayCards,randomnum], localStorageKeyName)
   };
+  const MainBookShelf = MainListItems();
+  function handleDragStart(event:any) {
+    setActiveId(event.active.id);
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <AppBar position="absolute" open={open}>
-          <Toolbar
-            sx={{
-              pr: '24px', // keep right padding when drawer closed
-            }}
-          >
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
-              sx={{
-                marginRight: '36px',
-                ...(open && { display: 'none' }),
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              StickyBook
-            </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open}>
-          <Toolbar
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              px: [1],
-            }}
-          >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <List component="nav">
-            {mainListItems}
-            <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
-          </List>
-        </Drawer>
-        <Box
-          component="main"
-          sx={{
-            backgroundColor: (theme) =>
-              theme.palette.mode === 'light'
-                ? theme.palette.grey[100]
-                : theme.palette.grey[900],
-            flexGrow: 1,
-            height: '100vh',
-            overflow: 'auto',
-          }}
+        <DndContext
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={(event) => {
+          const {active, over} = event;
+          if (over == null || active.id === over.id) {
+            return
+          }
+          const oldIndex = displayCards.findIndex((item) => item === active.id)
+          const newIndex = displayCards.findIndex((item) => item === over.id)
+          const newItems = arrayMove(displayCards, oldIndex, newIndex)
+          setDisplayCards(newItems)
+          setDropCount((x)=> x+1)
+        }}
         >
-          <Toolbar />
-          <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
-            <IconButton aria-label="delete" size="large" onClick={addNewCard}>
-              <AddCircleIcon fontSize="inherit" />
-            </IconButton>
-            <DndContext
-              collisionDetection={closestCenter}
-              onDragEnd={(event) => {
-                const {active, over} = event;
-                if (over == null || active.id === over.id) {
-                  return
-                }
-                const oldIndex = displayCards.findIndex((item) => item === active.id)
-                const newIndex = displayCards.findIndex((item) => item === over.id)
-                const newItems = arrayMove(displayCards, oldIndex, newIndex)
-                setDisplayCards(newItems)
+          <Box 
+          style = {{zIndex : 0}}
+          >
+          <AppBar position="absolute" open={open}>
+            <Toolbar
+              sx={{
+                pr: '24px', // keep right padding when drawer closed
               }}
             >
-              <Grid container spacing={2}>
-                <SortableContext items={displayCards}>  
-                  {
-                    displayCards.map((cardText) => {
-                      return <Cards text={cardText}/>
-                    })
-                  }
-                </SortableContext>
-              </Grid>
-            </DndContext>
-          </Container>
-        </Box>
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="open drawer"
+                onClick={toggleDrawer}
+                sx={{
+                  marginRight: '36px',
+                  ...(open && { display: 'none' }),
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography
+                component="h1"
+                variant="h6"
+                color="inherit"
+                noWrap
+                sx={{ flexGrow: 1 }}
+              >
+                StickyBook
+              </Typography>
+              <IconButton color="inherit">
+                <Badge badgeContent={4} color="secondary">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+            </Toolbar>
+          </AppBar>
+          <Drawer variant="permanent" open={open}>
+            <Toolbar
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                px: [1],
+              }}
+            >
+              <IconButton onClick={toggleDrawer}>
+                <ChevronLeftIcon />
+              </IconButton>
+            </Toolbar>
+            <Divider />
+            <List component="nav">
+              <Droppable id="shelf1">
+                {MainBookShelf}
+                {dropCount}回ドロップしたよー
+              </Droppable>
+              <Divider sx={{ my: 1 }} />
+              {SecondaryListItems}
+            </List>
+          </Drawer>
+          </Box>
+          <Box
+            component="main"
+            // style={{ zIndex: 10 }}
+            sx={{
+              backgroundColor: (theme) =>
+                theme.palette.mode === 'light'
+                  ? theme.palette.grey[100]
+                  : theme.palette.grey[900],
+              flexGrow: 1,
+              height: '100vh',
+              overflow: 'auto',
+            }}
+          >
+            <Toolbar />
+              <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
+                <IconButton aria-label="delete" size="large" onClick={addNewCard}>
+                  <AddCircleIcon fontSize="inherit" />
+                </IconButton>
+                  <Grid container spacing={2}>
+                    <SortableContext items={displayCards}>  
+                      {
+                        displayCards.map((cardText) => {
+                          return <Cards text={cardText}/>
+                        })
+                      }
+                    </SortableContext>
+                  </Grid>
+                    <DragOverlay>
+                      {/* <Cards text={"1"} /> */}
+                      {activeId ? (
+                        <Cards text={activeId} />
+                      ): null}
+                    </DragOverlay>
+              </Container>
+          </Box>
+        </DndContext>
       </Box>
     </ThemeProvider>
   );

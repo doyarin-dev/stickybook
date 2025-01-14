@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.ItemWrapper {
+  position: relatives;
+  &._active {
+    z-index: 2;
+  }
+}
