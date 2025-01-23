@@ -95,14 +95,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function Dashboard() {
-  let subtitle: HTMLHeadingElement | null
-  let modalIndex : number = 0 
+  let subtitle: HTMLHeadingElement | null;
+  // let modalIndex : number = 0;
+  const [modalIndex, setModalIndex] = React.useState<number>(0);
   const [modalIsOpen, setIsOpen] = React.useState<boolean>(false);
 
   function openModal(index:number) {
     setIsOpen(true);
-
-    modalIndex = index
+    setModalIndex(index)
     console.log("これはopenModal",modalIndex,index)
   }
 
@@ -265,15 +265,11 @@ export default function Dashboard() {
                     <SortableContext items={displayCards}>  
                       {
                         displayCards.map((cardText,index) => {
-                          console.log(index)
                           return( 
                           <>
                           <Cards text={cardText}/>
-                          <DeleteForeverIcon onClick={() => deleteCard(index)}/>
-                            
                           <div>
-                          <DeleteForeverIcon onClick={() => openModal(index)}>Open Modal</DeleteForeverIcon>
-
+                          <DeleteForeverIcon onClick={() => openModal(index)}/>
                           </div>
                           {/* <button {(event: React.MouseEvent<SVGSVGElement>) => handleClick(index)} > */}
                           </>
@@ -292,18 +288,16 @@ export default function Dashboard() {
           </Box>
         </DndContext>
       </Box>
-                              <Modal
-                            isOpen={modalIsOpen}
-                            onAfterOpen={afterOpenModal}
-                            onRequestClose={closeModal}
-                            style={customStyles}
-                            contentLabel="Example Modal"
-                          >
-                            <button onClick={closeModal}>close</button>
-                            <form>
-                              <button onClick={()=> deleteAndCloseModal(modalIndex)} >Delete</button>
-                            </form>
-                          </Modal>
+      <Modal
+        isOpen={modalIsOpen}
+        onAfterOpen={afterOpenModal}
+        onRequestClose={closeModal}
+        style={customStyles}
+        contentLabel="Example Modal"
+      >
+        <button onClick={closeModal}>close</button>
+        <button onClick={()=> deleteAndCloseModal(modalIndex)} >Delete</button>
+      </Modal>
     </ThemeProvider>
   );
 }
