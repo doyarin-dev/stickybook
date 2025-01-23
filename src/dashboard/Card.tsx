@@ -4,7 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import * as React from 'react';
 import CreateIcon from '@mui/icons-material/Create';
-import { CardModal } from './modal';
+import { EditCardModal, DeleteCardModal } from './Modal';
 
 const localStorageKeyName = 'card';
 const setCardsToLocalStorage = (Cards: string[], localStorageKeyName: string) => {
@@ -82,7 +82,6 @@ export default function Cards ({text}: Card) {
         />
         <CreateIcon style = {{zIndex : 99}}onClick = {() => console.log("hoge")} />
       </div>
-        <CardModal/>
     </Grid>
   )
 }

@@ -20,12 +20,26 @@ import MenuIcon from '@mui/icons-material/Menu';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { MainListItems, SecondaryListItems } from './listItems';
 import { AddCard } from '@mui/icons-material';
 import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import Cards from './Card';
 import { Droppable } from './Shelf ';
+import Modal from 'react-modal';
+
+const customStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+  },
+};
+Modal.setAppElement('body')
 
 const drawerWidth: number = 240;
 
@@ -81,6 +95,26 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function Dashboard() {
+  let subtitle: HTMLHeadingElement | null
+  let modalIndex : number = 0 
+  const [modalIsOpen, setIsOpen] = React.useState<boolean>(false);
+
+  function openModal(index:number) {
+    setIsOpen(true);
+
+    modalIndex = index
+    console.log("これはopenModal",modalIndex,index)
+  }
+
+  function afterOpenModal() {
+    // references are now sync'd and can be accessed.
+    if (subtitle) subtitle.style.color = '#f00'
+}
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
   const localStorageKeyName = 'card';
   const setCardsToLocalStorage = (Cards: string[], localStorageKeyName: string) => {
     localStorage.setItem(localStorageKeyName, JSON.stringify(Cards));
@@ -110,6 +144,20 @@ export default function Dashboard() {
     console.log(displayCards)
     setCardsToLocalStorage([...displayCards,randomnum], localStorageKeyName)
   };
+  const deleteCard = (index:number) => {
+    console.log(index,"hoge")
+    const newCards = displayCards.filter((_,i) => i !== index);
+    setDisplayCards(newCards);
+    setCardsToLocalStorage(newCards, localStorageKeyName)
+    } 
+  // const editCard =() 
+  function deleteAndCloseModal(index:number){
+    console.log(index,"hage")
+    closeModal()
+    deleteCard(index)
+  }
+
+
   const MainBookShelf = MainListItems();
   function handleDragStart(event:any) {
     setActiveId(event.active.id);
@@ -216,8 +264,20 @@ export default function Dashboard() {
                   <Grid container spacing={2}>
                     <SortableContext items={displayCards}>  
                       {
-                        displayCards.map((cardText) => {
-                          return <Cards text={cardText}/>
+                        displayCards.map((cardText,index) => {
+                          console.log(index)
+                          return( 
+                          <>
+                          <Cards text={cardText}/>
+                          <DeleteForeverIcon onClick={() => deleteCard(index)}/>
+                            
+                          <div>
+                          <DeleteForeverIcon onClick={() => openModal(index)}>Open Modal</DeleteForeverIcon>
+
+                          </div>
+                          {/* <button {(event: React.MouseEvent<SVGSVGElement>) => handleClick(index)} > */}
+                          </>
+                          )
                         })
                       }
                     </SortableContext>
@@ -232,6 +292,18 @@ export default function Dashboard() {
           </Box>
         </DndContext>
       </Box>
+                              <Modal
+                            isOpen={modalIsOpen}
+                            onAfterOpen={afterOpenModal}
+                            onRequestClose={closeModal}
+                            style={customStyles}
+                            contentLabel="Example Modal"
+                          >
+                            <button onClick={closeModal}>close</button>
+                            <form>
+                              <button onClick={()=> deleteAndCloseModal(modalIndex)} >Delete</button>
+                            </form>
+                          </Modal>
     </ThemeProvider>
   );
 }
